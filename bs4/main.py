@@ -9,6 +9,10 @@ def scrape_book_details(book_url):
         soup = BeautifulSoup(response.text, 'lxml')
         table_raws = soup.css.select('table tr')
         # Extract additional data as needed
+        relative_image_url = soup.select_one('.item.active img')['src']
+        base_url = "https://books.toscrape.com"
+        image_url = relative_image_url.replace('../.../', '/')  # Adjusting the path
+        full_image_url = base_url + image_url
         return {'title': soup.css.select_one('.product_main h1').text.strip(),
                'product_type': table_raws[1].css.select_one('td').text.strip(),
                'price_excl_tax' : table_raws[2].css.select_one('td').text.strip(),
@@ -19,6 +23,7 @@ def scrape_book_details(book_url):
                'description': soup.css.select_one('.sub-header').next_sibling.next_sibling.text.strip(),
                'stars': soup.css.select_one('.product_main p.star-rating')['class'][1],
                'category': soup.css.select_one('li.active').previous_sibling.previous_sibling.a.text.strip(),
+               'image_url': full_image_url,
                }
     else:
         print(f"Error fetching details for {book_url}: {response.status_code}")
